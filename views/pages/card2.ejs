@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" charset="UTF-8" />
+<title>Sending forms with FormData &ndash; MDN</title>
+<script>
+"use strict";
+
+function ajaxSuccess () {
+  console.log(this.responseText);
+}
+
+function AJAXSubmit (oFormElement) {
+  if (!oFormElement.action) { return; }
+  var oReq = new XMLHttpRequest();
+  oReq.onload = ajaxSuccess;
+  if (oFormElement.method.toLowerCase() === "post") {
+    oReq.open("post", oFormElement.action);
+    oReq.send(new FormData(oFormElement));
+  } else {
+    var oField, sFieldType, nFile, sSearch = "";
+    for (var nItem = 0; nItem < oFormElement.elements.length; nItem++) {
+      oField = oFormElement.elements[nItem];
+      if (!oField.hasAttribute("name")) { continue; }
+      sFieldType = oField.nodeName.toUpperCase() === "INPUT" ?
+          oField.getAttribute("type").toUpperCase() : "TEXT";
+      if (sFieldType === "FILE") {
+        for (nFile = 0; nFile < oField.files.length;
+            sSearch += "&" + escape(oField.name) + "=" + escape(oField.files[nFile++].name));
+      } else if ((sFieldType !== "RADIO" && sFieldType !== "CHECKBOX") || oField.checked) {
+        sSearch += "&" + escape(oField.name) + "=" + escape(oField.value);
+      }
+    }
+    oReq.open("get", oFormElement.action.replace(/(?:\?.*)?$/, sSearch.replace(/^&/, "?")), true);
+    oReq.send(null);
+  }
+}
+</script>
+</head>
+<body>
+
+<h1>Add Card Sample Form 2</h1>
+
+<form action="card" method="POST" onsubmit="AJAXSubmit(this); return false;">
+    <div>
+        <label for="frmCCNum">Card Number</label>
+        <input name="cardnumber" id="frmCCNum" required placeholder="Card Number" autocomplete="cc-number">
+    </div>
+    <div>
+        <label for="frmNameCC">Name on card</label>
+        <input name="ccname" id="frmNameCC" required placeholder="Full Name" autocomplete="cc-name">
+    </div>
+    <div>
+        <label for="frmCCExp">Expiry</label>
+        <input name="cc-exp" id="frmCCExp" required placeholder="MM-YYYY" autocomplete="cc-exp">
+    </div>
+    <div>
+        <label for="frmCCCVC">CVC</label>
+        <input name="cvc" id="frmCCCVC" required placeholder="CVV" autocomplete="cc-csc">
+    </div>            
+    <div class="buttons">
+        <button type="submit">Submit</button>
+    </div>
+</form>
+</body>
+</html>
